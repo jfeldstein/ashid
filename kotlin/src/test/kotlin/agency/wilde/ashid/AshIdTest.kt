@@ -94,9 +94,25 @@ class AshidTest {
     }
 
     @Test
-    fun `return no prefix if all chars stripped`() {
-        val id = Ashid.create("___", time = 1000, randomLong = 0)
-        assertEquals(22, id.length) // No prefix, fixed format
+    fun `throw InvalidPrefix if all chars stripped from prefix`() {
+        assertThrows<IllegalArgumentException> {
+            Ashid.create("___", time = 1000, randomLong = 0)
+        }
+    }
+
+    @Test
+    fun `throw InvalidPrefix for prefix with no alphanumeric chars`() {
+        val ex = assertThrows<IllegalArgumentException> {
+            Ashid.create("!!!", time = 1000, randomLong = 0)
+        }
+        assertTrue(ex.message!!.contains("invalid prefix"))
+    }
+
+    @Test
+    fun `create4 throws InvalidPrefix for all-non-alphanumeric prefix`() {
+        assertThrows<IllegalArgumentException> {
+            Ashid.create4("---")
+        }
     }
 
     @Test

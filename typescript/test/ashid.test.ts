@@ -47,9 +47,12 @@ describe('Ashid', () => {
       expect(id).toMatch(/^user_/);
     });
 
-    it('should return no prefix if all chars stripped', () => {
-      const id = Ashid.create('___', 1000, 0);
-      expect(id.length).toBe(22); // No prefix, fixed format
+    it('should throw InvalidPrefix if all chars stripped from prefix', () => {
+      expect(() => Ashid.create('___', 1000, 0)).toThrow('invalid prefix');
+    });
+
+    it('should throw InvalidPrefix for prefix with no alphanumeric chars', () => {
+      expect(() => Ashid.create('!!!', 1000, 0)).toThrow('invalid prefix');
     });
 
     it('should throw on negative timestamp', () => {
@@ -473,6 +476,10 @@ describe('Ashid', () => {
       const random2 = 987654321n;
       const id = Ashid.create4('tok', random1, random2);
       expect(id).toMatch(/^tok_/);
+    });
+
+    it('should throw InvalidPrefix for all-non-alphanumeric prefix', () => {
+      expect(() => Ashid.create4('---')).toThrow('invalid prefix');
     });
 
     it('should preserve 64-bit values in roundtrip', () => {

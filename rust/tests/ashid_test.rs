@@ -58,9 +58,21 @@ fn create_strips_special_chars_from_prefix() {
 }
 
 #[test]
-fn create_returns_no_prefix_when_all_stripped() {
-    let id = Ashid::create(Some("___"), Some(1000), Some(0)).unwrap();
-    assert_eq!(id.len(), 22);
+fn create_all_non_alphanumeric_prefix_returns_invalid_prefix() {
+    use ashid::AshidError;
+    match Ashid::create(Some("___"), Some(1000), Some(0)) {
+        Err(AshidError::InvalidPrefix(s)) => assert_eq!(s, "___"),
+        other => panic!("expected InvalidPrefix, got {:?}", other),
+    }
+}
+
+#[test]
+fn create4_all_non_alphanumeric_prefix_returns_invalid_prefix() {
+    use ashid::AshidError;
+    match Ashid::create4(Some("!!!"), None, None) {
+        Err(AshidError::InvalidPrefix(s)) => assert_eq!(s, "!!!"),
+        other => panic!("expected InvalidPrefix, got {:?}", other),
+    }
 }
 
 #[test]
@@ -568,5 +580,24 @@ fn error_invalid_char_for_bad_decode() {
     match ashid::EncoderBase32Crockford::decode("abc-def") {
         Err(AshidError::InvalidChar(_)) => {}
         other => panic!("expected InvalidChar, got {:?}", other),
+    }
+}
+
+#[test]
+fn error_invalid_prefix_when_all_chars_stripped() {
+    use ashid::AshidError;
+    match Ashid::create(Some("  !!! "), Some(1000), Some(0)) {
+        Err(AshidError::InvalidPrefix(s)) => assert_eq!(s, "  !!! "),
+        other => panic!("expected InvalidPrefix, got {:?}", other),
+    }
+}
+
+#[test]
+fn error_invalid_prefix_carries_original_string() {
+    use ashid::AshidError;
+    let input = "---";
+    match Ashid::create(Some(input), None, None) {
+        Err(AshidError::InvalidPrefix(s)) => assert_eq!(s, input),
+        other => panic!("expected InvalidPrefix, got {:?}", other),
     }
 }

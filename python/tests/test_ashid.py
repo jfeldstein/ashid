@@ -48,9 +48,17 @@ class TestCreate:
         id = Ashid.create("user!@#$%", 1000, 0)
         assert id.startswith("user_")
 
-    def test_no_prefix_when_all_stripped(self):
-        id = Ashid.create("___", 1000, 0)
-        assert len(id) == 22  # No prefix, fixed format
+    def test_invalid_prefix_when_all_stripped(self):
+        with pytest.raises(ValueError, match="invalid prefix"):
+            Ashid.create("___", 1000, 0)
+
+    def test_invalid_prefix_for_all_non_alphanumeric(self):
+        with pytest.raises(ValueError, match="invalid prefix"):
+            Ashid.create("!!!", 1000, 0)
+
+    def test_create4_invalid_prefix_when_all_stripped(self):
+        with pytest.raises(ValueError, match="invalid prefix"):
+            Ashid.create4("---")
 
     def test_negative_timestamp_raises(self):
         with pytest.raises(Exception, match="non-negative"):

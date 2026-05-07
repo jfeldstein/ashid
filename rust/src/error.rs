@@ -11,6 +11,8 @@ pub enum AshidError {
     InvalidId(InvalidIdReason),
     /// Base32 decoder hit a character outside the Crockford alphabet.
     InvalidChar(char),
+    /// Prefix contains no alphanumeric characters after stripping. Carries the original input.
+    InvalidPrefix(String),
 }
 
 /// Specific structural failure encountered while parsing an Ashid.
@@ -44,6 +46,11 @@ impl fmt::Display for AshidError {
             AshidError::InvalidChar(ch) => {
                 write!(f, "invalid character in Base32 string: '{}'", ch)
             }
+            AshidError::InvalidPrefix(s) => write!(
+                f,
+                "invalid prefix \"{}\": contains no alphanumeric characters",
+                s
+            ),
         }
     }
 }

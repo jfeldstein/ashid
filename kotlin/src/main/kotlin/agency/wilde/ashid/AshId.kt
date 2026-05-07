@@ -49,7 +49,8 @@ object Ashid {
     private fun normalizePrefix(prefix: String?): String? {
         if (prefix.isNullOrEmpty()) return null
         val cleaned = prefix.replace(Regex("[^a-zA-Z0-9]"), "").lowercase()
-        return if (cleaned.isEmpty()) null else cleaned + "_"
+        if (cleaned.isEmpty()) throw IllegalArgumentException("invalid prefix \"$prefix\": contains no alphanumeric characters")
+        return cleaned + "_"
     }
     /**
      * Create a new Ashid with optional type prefix

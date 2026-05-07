@@ -40,7 +40,7 @@ def _normalize_prefix(prefix: Optional[str]) -> Optional[str]:
         return None
     cleaned = _PREFIX_CLEAN_RE.sub("", prefix).lower()
     if cleaned == "":
-        return None
+        raise ValueError(f'invalid prefix "{prefix}": contains no alphanumeric characters')
     return cleaned + "_"
 
 

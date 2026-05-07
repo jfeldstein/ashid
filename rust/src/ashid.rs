@@ -25,20 +25,20 @@ fn now_ms() -> u64 {
         .unwrap_or(0)
 }
 
-fn normalize_prefix(prefix: Option<&str>) -> Option<String> {
-    let raw = prefix?;
-    if raw.is_empty() {
-        return None;
-    }
+fn normalize_prefix(prefix: Option<&str>) -> Result<Option<String>, AshidError> {
+    let raw = match prefix {
+        None | Some("") => return Ok(None),
+        Some(s) => s,
+    };
     let cleaned: String = raw
         .chars()
         .filter(|c| c.is_ascii_alphanumeric())
         .map(|c| c.to_ascii_lowercase())
         .collect();
     if cleaned.is_empty() {
-        None
+        Err(AshidError::InvalidPrefix(raw.to_string()))
     } else {
-        Some(cleaned + "_")
+        Ok(Some(cleaned + "_"))
     }
 }
 
@@ -50,7 +50,7 @@ impl Ashid {
         time: Option<u64>,
         random_long: Option<u64>,
     ) -> Result<String, AshidError> {
-        let normalized_prefix = normalize_prefix(prefix);
+        let normalized_prefix = normalize_prefix(prefix)?;
 
         let time = time.unwrap_or_else(now_ms);
         if time > MAX_TIMESTAMP {
@@ -82,7 +82,7 @@ impl Ashid {
         random1: Option<u64>,
         random2: Option<u64>,
     ) -> Result<String, AshidError> {
-        let normalized_prefix = normalize_prefix(prefix);
+        let normalized_prefix = normalize_prefix(prefix)?;
         let r1 = random1.unwrap_or_else(EncoderBase32Crockford::secure_random_long);
         let r2 = random2.unwrap_or_else(EncoderBase32Crockford::secure_random_long);
 
