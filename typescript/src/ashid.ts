@@ -50,7 +50,8 @@ export class Ashid {
   private static normalizePrefix(prefix?: string): string | undefined {
     if (prefix === undefined || prefix === '') return undefined;
     const cleaned = prefix.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-    return cleaned === '' ? undefined : cleaned + '_';
+    if (cleaned === '') throw new Error(`invalid prefix "${prefix}": contains no alphanumeric characters`);
+    return cleaned + '_';
   }
   /**
    * Create a new Ashid with optional type prefix

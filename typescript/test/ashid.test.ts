@@ -47,9 +47,12 @@ describe('Ashid', () => {
       expect(id).toMatch(/^user_/);
     });
 
-    it('should return no prefix if all chars stripped', () => {
-      const id = Ashid.create('___', 1000, 0);
-      expect(id.length).toBe(22); // No prefix, fixed format
+    it('should throw InvalidPrefix if all chars stripped from prefix', () => {
+      expect(() => Ashid.create('___', 1000, 0)).toThrow('invalid prefix');
+    });
+
+    it('should throw InvalidPrefix for prefix with no alphanumeric chars', () => {
+      expect(() => Ashid.create('!!!', 1000, 0)).toThrow('invalid prefix');
     });
 
     it('should throw on negative timestamp', () => {
@@ -452,29 +455,19 @@ describe('Ashid', () => {
     });
 
     it('should use full 64-bit entropy for both components', () => {
-      // Generate many IDs and check that we see values beyond 53-bit range
       const samples = 100;
       let sawFullEntropy = false;
-      const threshold = BigInt(Number.MAX_SAFE_INTEGER);
 
       for (let i = 0; i < samples; i++) {
         const id = ashid4();
         const [, encoded1, encoded2] = Ashid.parse(id);
 
-        // Parse each component using decodeBigInt (via random())
-        // For ashid4, parse returns both random components
-        const fullId = Ashid.create4(undefined, Ashid.random(id), Ashid.random(id));
-
-        // Check if any generated random exceeds 53-bit
-        // We need to check the raw generated values
-        // The simplest check: look at the encoded length
         if (encoded1.replace(/^0+/, '').length > 11 || encoded2.replace(/^0+/, '').length > 11) {
           sawFullEntropy = true;
           break;
         }
       }
 
-      // With 64-bit entropy, ~50% should have values > 2^53, requiring > 11 chars
       expect(sawFullEntropy).toBe(true);
     });
 
@@ -483,6 +476,10 @@ describe('Ashid', () => {
       const random2 = 987654321n;
       const id = Ashid.create4('tok', random1, random2);
       expect(id).toMatch(/^tok_/);
+    });
+
+    it('should throw InvalidPrefix for all-non-alphanumeric prefix', () => {
+      expect(() => Ashid.create4('---')).toThrow('invalid prefix');
     });
 
     it('should preserve 64-bit values in roundtrip', () => {

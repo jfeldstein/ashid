@@ -41,6 +41,9 @@ pnpm-debug.log*
 # TypeScript
 *.tsbuildinfo
 
+# Rust
+rust/Cargo.lock
+
 # Gradle
 .gradle/
 gradle-app.setting
@@ -54,6 +57,17 @@ pom.xml.versionsBackup
 pom.xml.next
 release.properties
 dependency-reduced-pom.xml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.tox/
+.venv/
+venv/
+.coverage
+htmlcov/
 
 # Package manager locks (keep for consistency)
 # Uncomment if you want to ignore:
